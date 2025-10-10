@@ -1,0 +1,9 @@
+type: object
+properties:
+  order_uuid:
+    type: string
+    example: 8687b7c2-ae79-4944-a476-84dfc6771aa0
+  total_price:
+    type: number
+    format: float
+    example: 123.45

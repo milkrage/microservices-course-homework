@@ -1,0 +1,24 @@
+type: object
+properties:
+  order_uuid:
+    type: string
+    example: 2b8a27de-6c58-4dd0-835c-50f97359909e
+  user_uuid:
+    type: string
+    example: ab3a8aa9-f46c-4c4c-abf6-b7cb9197e714
+  part_uuids:
+    type: array
+    items:
+      type: string
+      example: 3abdc87f-230d-4abf-b94f-374525eece1b
+  total_price:
+    type: number
+    format: float
+    example: 123.32
+  transaction_uuid:
+    type: string
+    example: f83cb65c-0777-46f7-8e83-f158174756e2
+  payment_method:
+    $ref: ./enums/payment_method.yaml
+  status:
+    $ref: ./enums/order_status.yaml

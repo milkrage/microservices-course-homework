@@ -1,0 +1,13 @@
+type: object
+required:
+  - user_uuid
+  - part_uuids
+properties:
+  user_uuid:
+    type: string
+    example: 5ba2d561-d598-4b05-91e1-f9184fd24363
+  part_uuids:
+    type: array
+    items:
+      type: string
+      example: c3729ff3-bd7b-4e05-a9f2-bf2a9f69e999

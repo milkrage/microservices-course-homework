@@ -1,0 +1,5 @@
+type: object
+properties:
+  transaction_uuid:
+    type: string
+    example: f83cb65c-0777-46f7-8e83-f158174756e2
