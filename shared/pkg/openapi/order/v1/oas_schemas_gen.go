@@ -12,6 +12,37 @@ func (s *GenericErrorStatusCode) Error() string {
 	return fmt.Sprintf("code %d: %+v", s.StatusCode, s.Response)
 }
 
+// Ref: #/components/schemas/bad_request_error
+type BadRequestError struct {
+	// HTTP error code.
+	Code int `json:"code"`
+	// Error description.
+	Message string `json:"message"`
+}
+
+// GetCode returns the value of Code.
+func (s *BadRequestError) GetCode() int {
+	return s.Code
+}
+
+// GetMessage returns the value of Message.
+func (s *BadRequestError) GetMessage() string {
+	return s.Message
+}
+
+// SetCode sets the value of Code.
+func (s *BadRequestError) SetCode(val int) {
+	s.Code = val
+}
+
+// SetMessage sets the value of Message.
+func (s *BadRequestError) SetMessage(val string) {
+	s.Message = val
+}
+
+func (*BadRequestError) createOrderRes() {}
+func (*BadRequestError) payOrderRes()    {}
+
 // CancelOrderNoContent is response for CancelOrder operation.
 type CancelOrderNoContent struct{}
 
@@ -76,7 +107,7 @@ func (s *CreateOrderRequest) SetPartUuids(val []string) {
 // Ref: #/components/schemas/create_order_response
 type CreateOrderResponse struct {
 	OrderUUID  OptString  `json:"order_uuid"`
-	TotalPrice OptFloat32 `json:"total_price"`
+	TotalPrice OptFloat64 `json:"total_price"`
 }
 
 // GetOrderUUID returns the value of OrderUUID.
@@ -85,7 +116,7 @@ func (s *CreateOrderResponse) GetOrderUUID() OptString {
 }
 
 // GetTotalPrice returns the value of TotalPrice.
-func (s *CreateOrderResponse) GetTotalPrice() OptFloat32 {
+func (s *CreateOrderResponse) GetTotalPrice() OptFloat64 {
 	return s.TotalPrice
 }
 
@@ -95,7 +126,7 @@ func (s *CreateOrderResponse) SetOrderUUID(val OptString) {
 }
 
 // SetTotalPrice sets the value of TotalPrice.
-func (s *CreateOrderResponse) SetTotalPrice(val OptFloat32) {
+func (s *CreateOrderResponse) SetTotalPrice(val OptFloat64) {
 	s.TotalPrice = val
 }
 
@@ -160,7 +191,7 @@ type GetOrderResponse struct {
 	OrderUUID       OptString        `json:"order_uuid"`
 	UserUUID        OptString        `json:"user_uuid"`
 	PartUuids       []string         `json:"part_uuids"`
-	TotalPrice      OptFloat32       `json:"total_price"`
+	TotalPrice      OptFloat64       `json:"total_price"`
 	TransactionUUID OptString        `json:"transaction_uuid"`
 	PaymentMethod   OptPaymentMethod `json:"payment_method"`
 	Status          OptOrderStatus   `json:"status"`
@@ -182,7 +213,7 @@ func (s *GetOrderResponse) GetPartUuids() []string {
 }
 
 // GetTotalPrice returns the value of TotalPrice.
-func (s *GetOrderResponse) GetTotalPrice() OptFloat32 {
+func (s *GetOrderResponse) GetTotalPrice() OptFloat64 {
 	return s.TotalPrice
 }
 
@@ -217,7 +248,7 @@ func (s *GetOrderResponse) SetPartUuids(val []string) {
 }
 
 // SetTotalPrice sets the value of TotalPrice.
-func (s *GetOrderResponse) SetTotalPrice(val OptFloat32) {
+func (s *GetOrderResponse) SetTotalPrice(val OptFloat64) {
 	s.TotalPrice = val
 }
 
@@ -304,38 +335,38 @@ func (*NotFoundError) createOrderRes() {}
 func (*NotFoundError) getOrderRes()    {}
 func (*NotFoundError) payOrderRes()    {}
 
-// NewOptFloat32 returns new OptFloat32 with value set to v.
-func NewOptFloat32(v float32) OptFloat32 {
-	return OptFloat32{
+// NewOptFloat64 returns new OptFloat64 with value set to v.
+func NewOptFloat64(v float64) OptFloat64 {
+	return OptFloat64{
 		Value: v,
 		Set:   true,
 	}
 }
 
-// OptFloat32 is optional float32.
-type OptFloat32 struct {
-	Value float32
+// OptFloat64 is optional float64.
+type OptFloat64 struct {
+	Value float64
 	Set   bool
 }
 
-// IsSet returns true if OptFloat32 was set.
-func (o OptFloat32) IsSet() bool { return o.Set }
+// IsSet returns true if OptFloat64 was set.
+func (o OptFloat64) IsSet() bool { return o.Set }
 
 // Reset unsets value.
-func (o *OptFloat32) Reset() {
-	var v float32
+func (o *OptFloat64) Reset() {
+	var v float64
 	o.Value = v
 	o.Set = false
 }
 
 // SetTo sets value to v.
-func (o *OptFloat32) SetTo(v float32) {
+func (o *OptFloat64) SetTo(v float64) {
 	o.Set = true
 	o.Value = v
 }
 
 // Get returns value and boolean that denotes whether value was set.
-func (o OptFloat32) Get() (v float32, ok bool) {
+func (o OptFloat64) Get() (v float64, ok bool) {
 	if !o.Set {
 		return v, false
 	}
@@ -343,7 +374,7 @@ func (o OptFloat32) Get() (v float32, ok bool) {
 }
 
 // Or returns value if set, or given parameter if does not.
-func (o OptFloat32) Or(d float32) float32 {
+func (o OptFloat64) Or(d float64) float64 {
 	if v, ok := o.Get(); ok {
 		return v
 	}

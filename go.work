@@ -1,3 +1,8 @@
 go 1.25
 
-use ./shared
+use (
+	./shared
+	./payment
+	./order
+	./inventory
+)

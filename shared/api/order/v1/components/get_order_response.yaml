@@ -13,7 +13,7 @@ properties:
       example: 3abdc87f-230d-4abf-b94f-374525eece1b
   total_price:
     type: number
-    format: float
+    format: double
     example: 123.32
   transaction_uuid:
     type: string
