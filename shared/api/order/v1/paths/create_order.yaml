@@ -1,0 +1,37 @@
+post:
+  summary: Create order
+  description: Creates a new order based on user-selected parts
+  operationId: CreateOrder
+  tags:
+    - Orders
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../components/create_order_request.yaml
+  responses:
+    '200':
+      description: Successful order creation
+      content:
+        application/json:
+          schema:
+            $ref: ../components/create_order_response.yaml
+    '404':
+      description: Part not found
+      content:
+        application/json:
+          schema:
+            $ref: ../components/errors/not_found_error.yaml
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: ../components/errors/internal_server_error.yaml
+    default:
+      description: Unexpected error
+      content:
+        application/json:
+          schema:
+            $ref: ../components/errors/generic_error.yaml

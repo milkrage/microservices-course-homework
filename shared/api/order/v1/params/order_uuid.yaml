@@ -1,0 +1,9 @@
+name: order_uuid
+in: path
+required: true
+description: Order UUID
+schema:
+  type: string
+  minLength: 36
+  maxLength: 36
+  example: "0de984a2-6a84-4b84-af44-946e2b9fe649"

@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package payment.v1;
+
+option go_package = "github.com/milkrage/microservices-course-homework/shared/pkg/proto/payment/v1;payment_v1";
+
+// PaymentService - the order payment service simulates the operation of a payment gateway.
+service PaymentService {
+  rpc PayOrder(PayOrderRequest) returns(PayOrderResponse);
+}
+
+// PaymentMethod - available payment methods
+enum PaymentMethod {
+  UNKNOWN = 0;
+  CARD = 1;
+  SBP = 2;
+  CREDIT_CARD = 3;
+  INVESTOR_MONEY = 4;
+}
+
+// PayOrderRequest - request struct for pay order.
+message PayOrderRequest {
+  string order_uuid = 1;
+  string user_uuid = 2;
+  PaymentMethod payment_method = 3;
+}
+
+// PayOrderResponse - contains a response struct about a paid order.
+message PayOrderResponse {
+  string transaction_uuid = 1;
+}
