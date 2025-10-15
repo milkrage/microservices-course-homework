@@ -3,6 +3,7 @@ package memory
 import (
 	"maps"
 	"slices"
+	"sync"
 
 	"github.com/brianvoe/gofakeit/v7"
 	"github.com/google/uuid"
@@ -12,6 +13,7 @@ import (
 
 type InventoryStorage struct {
 	storage map[string]*inventoryV1.Part
+	mu      sync.RWMutex
 }
 
 func NewInventoryStorage() *InventoryStorage {
@@ -23,6 +25,9 @@ func NewInventoryStorage() *InventoryStorage {
 }
 
 func (i *InventoryStorage) GetPart(uuid string) (*inventoryV1.Part, bool) {
+	i.mu.RLock()
+	defer i.mu.RUnlock()
+
 	part, ok := i.storage[uuid]
 	if !ok {
 		return nil, false
@@ -32,6 +37,9 @@ func (i *InventoryStorage) GetPart(uuid string) (*inventoryV1.Part, bool) {
 }
 
 func (i *InventoryStorage) ListParts(filter *inventoryV1.PartsFilter) []*inventoryV1.Part {
+	i.mu.RLock()
+	defer i.mu.RUnlock()
+
 	filters := len(filter.Uuids) +
 		len(filter.Names) +
 		len(filter.Categories) +
