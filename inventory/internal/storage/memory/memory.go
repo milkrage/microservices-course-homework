@@ -45,45 +45,9 @@ func (i *InventoryStorage) ListParts(filter *inventoryV1.PartsFilter) []*invento
 		return slices.Collect(maps.Values(i.storage))
 	}
 
-	// This map is an implementation of a unique set (by keys).
-	result := make(map[*inventoryV1.Part]any)
+	parts := i.filterParts(filter)
 
-	for part := range maps.Values(i.storage) {
-		if slices.Contains(filter.Uuids, part.Uuid) {
-			result[part] = nil
-
-			continue
-		}
-
-		if slices.Contains(filter.Categories, part.Category) {
-			result[part] = nil
-
-			continue
-		}
-
-		if slices.Contains(filter.ManufacturerCountries, part.Manufacturer.Country) {
-			result[part] = nil
-
-			continue
-		}
-
-		if slices.Contains(filter.Names, part.Name) {
-			result[part] = nil
-
-			continue
-		}
-
-		for _, tag := range filter.Tags {
-			if slices.Contains(part.Tags, tag) {
-				result[part] = nil
-
-				// Exit from loop of tags.
-				break
-			}
-		}
-	}
-
-	return slices.Collect(maps.Keys(result))
+	return parts
 }
 
 func (i *InventoryStorage) isEmptyFilter(filter *inventoryV1.PartsFilter) bool {
@@ -98,6 +62,29 @@ func (i *InventoryStorage) isEmptyFilter(filter *inventoryV1.PartsFilter) bool {
 	}
 
 	return false
+}
+
+func (i *InventoryStorage) filterParts(filter *inventoryV1.PartsFilter) []*inventoryV1.Part {
+	result := make([]*inventoryV1.Part, 0)
+
+	for part := range maps.Values(i.storage) {
+		if slices.Contains(filter.Uuids, part.Uuid) ||
+			slices.Contains(filter.Categories, part.Category) ||
+			slices.Contains(filter.ManufacturerCountries, part.Manufacturer.Country) ||
+			slices.Contains(filter.Names, part.Name) {
+			result = append(result, part)
+			continue
+		}
+
+		for _, tag := range filter.Tags {
+			if slices.Contains(part.Tags, tag) {
+				result = append(result, part)
+				break
+			}
+		}
+	}
+
+	return result
 }
 
 func generateData(count int) map[string]*inventoryV1.Part {
