@@ -215,31 +215,17 @@ func (o *OderHandler) CancelOrder(ctx context.Context, params orderV1.CancelOrde
 		}, nil
 	}
 
-	switch order.Status {
-	case string(orderV1.OrderStatusPAID):
-		return &orderV1.NotFoundError{
-			Code:    http.StatusConflict,
-			Message: fmt.Sprintf("Order %s has already been paid and cannot be cancelled", params.OrderUUID),
-		}, nil
-	case string(orderV1.OrderStatusPENDINGPAYMENT):
+	if o.canCancelOrder(order.Status) {
 		order.Status = string(orderV1.OrderStatusCANCELLED)
 
 		o.storage.Upsert(order)
 
 		return &orderV1.CancelOrderNoContent{}, nil
-	case string(orderV1.OrderStatusCANCELLED):
-		return &orderV1.NotFoundError{
-			Code:    http.StatusConflict,
-			Message: fmt.Sprintf("Order %s has already been canceled", params.OrderUUID),
-		}, nil
-	default:
-		log.Printf("ERROR (CancelOrder) unknown order status %s in order %s\n", order.Status, order.OrderUUID)
-
-		return &orderV1.InternalServerError{
-			Code:    http.StatusInternalServerError,
-			Message: http.StatusText(http.StatusInternalServerError),
-		}, nil
 	}
+
+	resp := o.getErrorByStatusForCancelOrder(order.Status, order.OrderUUID)
+
+	return resp, nil
 }
 
 func (o *OderHandler) NewError(_ context.Context, err error) *orderV1.GenericErrorStatusCode {
@@ -249,6 +235,37 @@ func (o *OderHandler) NewError(_ context.Context, err error) *orderV1.GenericErr
 			Code:    orderV1.NewOptInt(http.StatusInternalServerError),
 			Message: orderV1.NewOptString(err.Error()),
 		},
+	}
+}
+
+
+func (o *OderHandler) canCancelOrder(status string) bool {
+	if status == string(orderV1.OrderStatusPENDINGPAYMENT) {
+		return true
+	}
+
+	return false
+}
+
+func (o *OderHandler) getErrorByStatusForCancelOrder(status string, orderUUID string) orderV1.CancelOrderRes {
+	switch status {
+	case string(orderV1.OrderStatusPAID):
+		return &orderV1.NotFoundError{
+			Code:    http.StatusConflict,
+			Message: fmt.Sprintf("Order %s has already been paid and cannot be cancelled", orderUUID),
+		}
+	case string(orderV1.OrderStatusCANCELLED):
+		return &orderV1.NotFoundError{
+			Code:    http.StatusConflict,
+			Message: fmt.Sprintf("Order %s has already been canceled", orderUUID),
+		}
+	default:
+		log.Printf("ERROR (CancelOrder) unknown order status %s in order %s\n", status, orderUUID)
+
+		return &orderV1.InternalServerError{
+			Code:    http.StatusInternalServerError,
+			Message: http.StatusText(http.StatusInternalServerError),
+		}
 	}
 }
 
