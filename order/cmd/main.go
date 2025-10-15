@@ -245,14 +245,10 @@ func (o *OderHandler) NewError(_ context.Context, err error) *orderV1.GenericErr
 }
 
 func (o *OderHandler) canCancelOrder(status string) bool {
-	if status == string(orderV1.OrderStatusPENDINGPAYMENT) {
-		return true
-	}
-
-	return false
+	return status == string(orderV1.OrderStatusPENDINGPAYMENT)
 }
 
-func (o *OderHandler) getErrorByStatusForCancelOrder(status string, orderUUID string) orderV1.CancelOrderRes {
+func (o *OderHandler) getErrorByStatusForCancelOrder(status, orderUUID string) orderV1.CancelOrderRes {
 	switch status {
 	case string(orderV1.OrderStatusPAID):
 		return &orderV1.NotFoundError{

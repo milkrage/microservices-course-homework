@@ -57,11 +57,7 @@ func (i *InventoryStorage) isEmptyFilter(filter *inventoryV1.PartsFilter) bool {
 		len(filter.ManufacturerCountries) +
 		len(filter.Tags)
 
-	if filters == 0 {
-		return true
-	}
-
-	return false
+	return filters == 0
 }
 
 func (i *InventoryStorage) filterParts(filter *inventoryV1.PartsFilter) []*inventoryV1.Part {

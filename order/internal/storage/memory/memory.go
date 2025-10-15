@@ -35,16 +35,25 @@ func (o *OrderMemoryStorage) Get(uuid string) (Order, bool) {
 		return Order{}, false
 	}
 
-	transactionUUID := *order.TransactionUUID
-	paymentMethod := *order.PaymentMethod
+	var transactionUUID *string
+	if order.TransactionUUID != nil {
+		tmp := *order.TransactionUUID
+		transactionUUID = &tmp
+	}
+
+	var paymentMethod *string
+	if order.PaymentMethod != nil {
+		tmp := *order.PaymentMethod
+		paymentMethod = &tmp
+	}
 
 	result := Order{
 		OrderUUID:       order.OrderUUID,
 		UserUUID:        order.UserUUID,
 		PartUUIDs:       slices.Clone(order.PartUUIDs),
 		TotalPrice:      order.TotalPrice,
-		TransactionUUID: &transactionUUID,
-		PaymentMethod:   &paymentMethod,
+		TransactionUUID: transactionUUID,
+		PaymentMethod:   paymentMethod,
 		Status:          order.Status,
 	}
 
