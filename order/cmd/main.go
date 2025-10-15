@@ -32,16 +32,12 @@ const (
 
 	readHeaderTimeout = 5 * time.Second
 	shutdownTimeout   = 10 * time.Second
-)
 
-// TODO(milkrage): remove global variables in week2.
-var paymentMethodsMap = map[string]int32{
-	"UNKNOWN":        0,
-	"CARD":           1,
-	"SBP":            2,
-	"CREDIT_CARD":    3,
-	"INVESTOR_MONEY": 4,
-}
+	CardPaymentMethod          = "CARD"
+	SBPPaymentMethod           = "SBP"
+	CreditCardPaymentMethod    = "CREDIT_CARD"
+	InvestorMoneyPaymentMethod = "INVESTOR_MONEY"
+)
 
 type OderHandler struct {
 	payment   paymentV1.PaymentServiceClient
@@ -176,12 +172,7 @@ func (o *OderHandler) PayOrder(ctx context.Context, req *orderV1.PayOrderRequest
 	}
 
 	paymentMethod := string(req.PaymentMethod)
-
-	paymentMethodCode, ok := paymentMethodsMap[paymentMethod]
-	if !ok {
-		// Neglecting proper error handling.
-		paymentMethodCode = int32(0)
-	}
+	paymentMethodCode := o.convertPaymentMethodToInt32(paymentMethod)
 
 	paymentOrder, err := o.payment.PayOrder(ctx, &paymentV1.PayOrderRequest{
 		UserUuid:      order.UserUUID,
@@ -204,6 +195,21 @@ func (o *OderHandler) PayOrder(ctx context.Context, req *orderV1.PayOrderRequest
 	o.storage.Upsert(order)
 
 	return &orderV1.PayOrderResponse{TransactionUUID: orderV1.NewOptString(*order.TransactionUUID)}, nil
+}
+
+func (o *OderHandler) convertPaymentMethodToInt32(method string) int32 {
+	switch method {
+	case CardPaymentMethod:
+		return 1
+	case SBPPaymentMethod:
+		return 2
+	case CreditCardPaymentMethod:
+		return 3
+	case InvestorMoneyPaymentMethod:
+		return 4
+	default:
+		return 0
+	}
 }
 
 func (o *OderHandler) CancelOrder(ctx context.Context, params orderV1.CancelOrderParams) (orderV1.CancelOrderRes, error) {
@@ -237,7 +243,6 @@ func (o *OderHandler) NewError(_ context.Context, err error) *orderV1.GenericErr
 		},
 	}
 }
-
 
 func (o *OderHandler) canCancelOrder(status string) bool {
 	if status == string(orderV1.OrderStatusPENDINGPAYMENT) {
