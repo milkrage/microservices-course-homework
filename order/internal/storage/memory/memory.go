@@ -1,6 +1,9 @@
 package memory
 
-import "sync"
+import (
+	"slices"
+	"sync"
+)
 
 type Order struct {
 	OrderUUID       string
@@ -28,7 +31,24 @@ func (o *OrderMemoryStorage) Get(uuid string) (Order, bool) {
 	order, ok := o.storage[uuid]
 	o.mu.RUnlock()
 
-	return order, ok
+	if !ok {
+		return Order{}, false
+	}
+
+	transactionUUID := *order.TransactionUUID
+	paymentMethod := *order.PaymentMethod
+
+	result := Order{
+		OrderUUID:       order.OrderUUID,
+		UserUUID:        order.UserUUID,
+		PartUUIDs:       slices.Clone(order.PartUUIDs),
+		TotalPrice:      order.TotalPrice,
+		TransactionUUID: &transactionUUID,
+		PaymentMethod:   &paymentMethod,
+		Status:          order.Status,
+	}
+
+	return result, true
 }
 
 func (o *OrderMemoryStorage) Upsert(order Order) {
