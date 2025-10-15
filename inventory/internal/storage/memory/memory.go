@@ -40,14 +40,8 @@ func (i *InventoryStorage) ListParts(filter *inventoryV1.PartsFilter) []*invento
 	i.mu.RLock()
 	defer i.mu.RUnlock()
 
-	filters := len(filter.Uuids) +
-		len(filter.Names) +
-		len(filter.Categories) +
-		len(filter.ManufacturerCountries) +
-		len(filter.Tags)
-
 	// Return all parts if all filters is empty.
-	if filters == 0 {
+	if i.isEmptyFilter(filter) {
 		return slices.Collect(maps.Values(i.storage))
 	}
 
@@ -90,6 +84,20 @@ func (i *InventoryStorage) ListParts(filter *inventoryV1.PartsFilter) []*invento
 	}
 
 	return slices.Collect(maps.Keys(result))
+}
+
+func (i *InventoryStorage) isEmptyFilter(filter *inventoryV1.PartsFilter) bool {
+	filters := len(filter.Uuids) +
+		len(filter.Names) +
+		len(filter.Categories) +
+		len(filter.ManufacturerCountries) +
+		len(filter.Tags)
+
+	if filters == 0 {
+		return true
+	}
+
+	return false
 }
 
 func generateData(count int) map[string]*inventoryV1.Part {
