@@ -98,6 +98,9 @@ func (o *OderHandler) CreateOrder(ctx context.Context, req *orderV1.CreateOrderR
 		}, nil
 	}
 
+	ctx, cancel := context.WithTimeout(ctx, 1*time.Second)
+	defer cancel()
+
 	parts, err := o.inventory.ListParts(ctx, &inventoryV1.ListPartsRequest{
 		Filter: &inventoryV1.PartsFilter{Uuids: req.PartUuids},
 	})
