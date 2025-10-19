@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net"
@@ -9,28 +8,15 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/google/uuid"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
+	paymentHandler "github.com/milkrage/microservices-course-homework/payment/internal/api/payment/v1"
+	paymentService "github.com/milkrage/microservices-course-homework/payment/internal/service/payment"
 	paymentV1 "github.com/milkrage/microservices-course-homework/shared/pkg/proto/payment/v1"
 )
 
 const grpcPort = 50052
-
-type paymentService struct {
-	paymentV1.UnimplementedPaymentServiceServer
-}
-
-func (p *paymentService) PayOrder(_ context.Context, _ *paymentV1.PayOrderRequest) (*paymentV1.PayOrderResponse, error) {
-	resp := &paymentV1.PayOrderResponse{
-		TransactionUuid: uuid.NewString(),
-	}
-
-	log.Printf("Payment was successful, transaction_uuid: %s", resp.TransactionUuid)
-
-	return resp, nil
-}
 
 func main() {
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", grpcPort))
@@ -39,11 +25,11 @@ func main() {
 	}
 
 	s := grpc.NewServer()
-	service := &paymentService{}
+	service := paymentService.NewPaymentService()
+	handler := paymentHandler.NewPaymentHandler(service)
 
 	reflection.Register(s)
-
-	paymentV1.RegisterPaymentServiceServer(s, service)
+	paymentV1.RegisterPaymentServiceServer(s, handler)
 
 	go func() {
 		log.Printf("🚀 gRPC server listening on %d\n", grpcPort)
